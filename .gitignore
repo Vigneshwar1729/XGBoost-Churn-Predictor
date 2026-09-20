@@ -1,0 +1,23 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+env/
+ENV/
+.env
+
+# Weights and Biases
+wandb/
+
+# Data splits
+splits/
+
+# IDE files
+.vscode/
+.idea/
+
+# Note: We are NOT ignoring xgboost_churn_model.json because we need it 
+# committed to deploy to Render via GitHub (if downloading from W&B is not implemented)
