@@ -1,9 +1,15 @@
 import { useState } from 'react';
 import './index.css';
 
+interface ModelResult {
+  prediction: number;
+  probability: number;
+  accuracy: number;
+}
+
 interface PredictionResponse {
-  churn_prediction: number;
-  churn_probability: number;
+  xgboost: ModelResult;
+  ft_transformer: ModelResult;
 }
 
 function App() {
@@ -66,7 +72,7 @@ function App() {
     <div className="app-container">
       <header>
         <h1>Customer Insight</h1>
-        <p className="subtitle">AI-Powered Churn Prediction (XGBoost)</p>
+        <p className="subtitle">AI-Powered Churn Prediction (XGBoost vs FT-Transformer)</p>
       </header>
 
       <form onSubmit={handleSubmit}>
@@ -132,15 +138,31 @@ function App() {
       )}
 
       {result && (
-        <div className={`result-card ${result.churn_prediction === 1 ? 'risk' : 'safe'}`}>
-          <div className="result-title">
-            {result.churn_prediction === 1 ? 'High Risk of Churn' : 'Low Risk (Loyal)'}
+        <div className="results-container">
+          <div className={`result-card ${result.xgboost.prediction === 1 ? 'risk' : 'safe'}`}>
+            <h4>XGBoost</h4>
+            <div className="result-title">
+              {result.xgboost.prediction === 1 ? 'High Risk' : 'Low Risk'}
+            </div>
+            <div className="result-prob">
+              {(result.xgboost.probability * 100).toFixed(1)}%
+            </div>
+            <div className="result-desc">
+              Model Accuracy: {(result.xgboost.accuracy * 100).toFixed(1)}%
+            </div>
           </div>
-          <div className="result-prob">
-            {(result.churn_probability * 100).toFixed(1)}%
-          </div>
-          <div className="result-desc">
-            Calculated Probability of Exiting
+          
+          <div className={`result-card ${result.ft_transformer.prediction === 1 ? 'risk' : 'safe'}`}>
+            <h4>FT-Transformer</h4>
+            <div className="result-title">
+              {result.ft_transformer.prediction === 1 ? 'High Risk' : 'Low Risk'}
+            </div>
+            <div className="result-prob">
+              {(result.ft_transformer.probability * 100).toFixed(1)}%
+            </div>
+            <div className="result-desc">
+              Model Accuracy: {(result.ft_transformer.accuracy * 100).toFixed(1)}%
+            </div>
           </div>
         </div>
       )}

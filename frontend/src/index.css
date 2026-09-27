@@ -30,7 +30,7 @@ body {
 
 .app-container {
   width: 100%;
-  max-width: 500px;
+  max-width: 650px;
   padding: 2rem;
   margin: 2rem;
   background: var(--glass-bg);
@@ -118,12 +118,26 @@ button.submit-btn:disabled {
   transform: none;
 }
 
-.result-card {
+.results-container {
+  display: flex;
+  gap: 1.5rem;
   margin-top: 2rem;
+  animation: slideUp 0.4s ease-out forwards;
+}
+
+.result-card {
+  flex: 1;
   padding: 1.5rem;
   border-radius: 16px;
   text-align: center;
-  animation: slideUp 0.4s ease-out forwards;
+}
+
+.result-card h4 {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 1rem;
 }
 
 .result-card.safe {
