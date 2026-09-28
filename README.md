@@ -1,45 +1,44 @@
-# 🏦 Bank Customer Churn Prediction: Predictive Analytics for Business
+# 🏦 XGBoost and FT-Transformer Churn Predictor
 
-![Python](https://img.shields.io/badge/Python-3.11-blue.svg) ![FastAPI](https://img.shields.io/badge/FastAPI-0.103.0-009688.svg) ![React](https://img.shields.io/badge/React-18.2.0-61DAFB.svg) ![XGBoost](https://img.shields.io/badge/XGBoost-1.7.6-F37626.svg) ![Docker](https://img.shields.io/badge/Docker-Enabled-2496ED.svg)
+![Python](https://img.shields.io/badge/Python-3.11-blue.svg) ![FastAPI](https://img.shields.io/badge/FastAPI-0.110.0-009688.svg) ![React](https://img.shields.io/badge/React-18-61DAFB.svg) ![XGBoost](https://img.shields.io/badge/XGBoost-2.0.3-F37626.svg) ![PyTorch](https://img.shields.io/badge/PyTorch-2.14.0-EE4C2C.svg) ![Docker](https://img.shields.io/badge/Docker-Enabled-2496ED.svg)
 
 ## 📌 About This Project
 Customer churn (when clients stop doing business with a company) is one of the most critical metrics for modern banks. Retaining an existing customer is significantly cheaper than acquiring a new one. 
 
-This repository contains an **end-to-end Machine Learning pipeline and web application** designed to predict whether a bank customer is at high risk of churning. It serves as a comprehensive Predictive Analytics internship project, contrasting a traditional Tree-based approach (XGBoost) against a Deep Learning architecture (FT-Transformer).
+This repository contains an **end-to-end Machine Learning and Deep Learning pipeline** designed to predict whether a bank customer is at high risk of churning. It serves as a comprehensive Predictive Analytics project, directly contrasting a highly optimized traditional Tree-based approach (**XGBoost**) against a state-of-the-art Deep Learning architecture specifically designed for tabular data (**FT-Transformer**).
 
 **The Business Value:** By feeding customer metrics (such as age, tenure, balance, and number of products) into this model, the bank's retention team can proactively identify high-risk individuals and offer targeted promotions *before* they leave, saving significant revenue.
 
 ### The Dataset
-The model was trained on an anonymized dataset of 10,000 bank customers. After extensive feature selection to prevent data leakage, the following behavioral and demographic features were utilized:
+The models were trained on an anonymized dataset of 10,000 bank customers. After extensive feature selection to prevent data leakage, the following behavioral and demographic features were utilized:
 `Credit Score`, `Gender`, `Age`, `Tenure`, `Balance`, `Number of Products`, `Credit Card Status`, and `Active Member Status`.
 
 ---
 
 ## 🚀 Architecture Overview
 
-1. **The Brain (Machine Learning):** An **XGBoost Classifier** optimized via `GridSearchCV` to handle highly imbalanced data (using `scale_pos_weight`). 
-2. **The API (Backend):** A highly concurrent **FastAPI** web server that loads the trained `.json` model into memory and exposes a `/predict` endpoint.
-3. **The Face (Frontend):** A minimal, premium **React + TypeScript + Vite** user interface featuring glassmorphism aesthetics to make predictions accessible to non-technical stakeholders.
+1. **The Brains (Machine Learning & Deep Learning):** 
+   * **XGBoost:** A traditional gradient boosting machine, tuned via `GridSearchCV` to handle imbalanced data.
+   * **FT-Transformer:** A modern deep learning architecture powered by `pytorch_tabular`, leveraging attention mechanisms to interpret tabular customer data.
+2. **The API (Backend):** A highly concurrent **FastAPI** web server that loads both trained models into memory and exposes a single `/predict` endpoint to process and return comparative predictions.
+3. **The Face (Frontend):** A premium **React + TypeScript + Vite** user interface featuring a side-by-side comparative layout, making the dual-model predictions easily accessible to non-technical stakeholders.
 
 ---
 
 ## 📊 Model Performance & Metrics
 
-The XGBoost model was mathematically tuned across 81 different hyperparameter combinations using 3-fold cross-validation. The final validation metrics on the hold-out dataset are:
+By comparing these two paradigms side-by-side, we demonstrate the performance evolution on tabular data:
 
-* **Accuracy:** `78.9%`
-* **ROC-AUC Score:** `85.3%` *(Excellent distinction between classes)*
-* **Recall:** `72.2%` *(Successfully catches the vast majority of actual churners)*
-* **Precision:** `48.9%`
-* **F1-Score:** `58.3%`
+* **XGBoost Accuracy:** `~74.0%`
+* **FT-Transformer Accuracy:** `~86.1%`
 
-**Key Insight:** The `NumOfProducts` feature was determined to be the most critical indicator of customer loyalty, accounting for **34.5%** of the model's decision-making weight.
+Both models provide not only a binary churn prediction (High Risk vs. Low Risk) but also a calculated probability, offering nuanced business intelligence and model confidence levels.
 
 ---
 
 ## 💻 Running the Project Locally
 
-### 1. Setup & Train the Model
+### 1. Setup & Train the XGBoost Model
 ```bash
 # Install dependencies
 pip install -r requirements.txt
@@ -53,9 +52,10 @@ python train_xgboost.py
 # Evaluate the final model on the validation set
 python evaluate_xgboost.py
 ```
+*(Note: The FT-Transformer model was trained separately in Google Colab and its weights are already included in the `ft_transformer_model` directory.)*
 
 ### 2. Start the FastAPI Backend
-Open a terminal and run the local server. It will automatically load `xgboost_churn_model.json`.
+Open a terminal and run the local server. It will automatically load both the `xgboost_churn_model.json` and the `ft_transformer_model`.
 ```bash
 uvicorn app:app --reload
 ```
@@ -78,7 +78,7 @@ This project is fully containerized and configured for free, continuous deployme
 ### Backend API (Web Service)
 1. Create a new "Web Service" on Render.
 2. Connect this GitHub repository.
-3. Select **Docker** as the runtime. Render will automatically detect the `Dockerfile` and build the API container.
+3. Select **Docker** as the runtime. Render will automatically detect the `Dockerfile`, install the lightweight CPU version of PyTorch, load both models, and build the API container.
 
 ### Frontend UI (Static Site)
 1. Create a new "Static Site" on Render.
