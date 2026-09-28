@@ -27,12 +27,23 @@ The models were trained on an anonymized dataset of 10,000 bank customers. After
 
 ## 📊 Model Performance & Metrics
 
-By comparing these two paradigms side-by-side, we demonstrate the performance evolution on tabular data:
+By comparing these two paradigms side-by-side on the hold-out dataset, we demonstrate the performance evolution on tabular data. Because this is an imbalanced dataset (fewer people churn than stay), **F1-Score and ROC-AUC** are heavily prioritized alongside Accuracy.
 
-* **XGBoost Accuracy:** `~74.0%`
-* **FT-Transformer Accuracy:** `~86.1%`
+### XGBoost (Traditional ML)
+* **Accuracy:** `74.0%`
+* **ROC-AUC Score:** `85.3%`
+* **Recall:** `72.2%`
+* **Precision:** `48.9%`
+* **F1-Score:** `58.3%`
 
-Both models provide not only a binary churn prediction (High Risk vs. Low Risk) but also a calculated probability, offering nuanced business intelligence and model confidence levels.
+### FT-Transformer (Deep Learning)
+* **Accuracy:** `86.1%`
+* **ROC-AUC Score:** `90.2%`
+* **Recall:** `75.5%`
+* **Precision:** `62.7%`
+* **F1-Score:** `68.4%`
+
+**Key Insight:** While XGBoost aggressively caught potential churners (high recall), it suffered from false positives. The FT-Transformer architecture maintained high recall while drastically improving precision, leading to a much stronger F1-Score and making it the vastly superior model for targeted business interventions.
 
 ---
 
