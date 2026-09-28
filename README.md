@@ -52,9 +52,19 @@ python train_xgboost.py
 # Evaluate the final model on the validation set
 python evaluate_xgboost.py
 ```
-*(Note: The FT-Transformer model was trained separately in Google Colab and its weights are already included in the `ft_transformer_model` directory.)*
+*(Note: If you run XGBoost, it will finish in seconds. If you run FT-Transformer without a GPU, it will take considerably longer.)*
 
-### 2. Start the FastAPI Backend
+### 2. Train the FT-Transformer Model (Deep Learning)
+Deep Learning models require PyTorch to train. To build the FT-Transformer:
+```bash
+# Install PyTorch Tabular
+pip install torch pytorch-tabular
+
+# Train the architecture (will save to ./ft_transformer_model/)
+python train_ft_transformer.py
+```
+
+### 3. Start the FastAPI Backend
 Open a terminal and run the local server. It will automatically load both the `xgboost_churn_model.json` and the `ft_transformer_model`.
 ```bash
 uvicorn app:app --reload
