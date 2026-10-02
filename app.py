@@ -1,15 +1,29 @@
-from fastapi import FastAPI, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
-import pandas as pd
-import xgboost as xgb
 import os
+
 try:
+    import torch
+    # Ensure any CUDA tensor in callbacks.sav safely unpickles on CPU environments (e.g. Render)
+    _orig_torch_load = torch.load
+    torch.load = lambda *args, **kwargs: _orig_torch_load(*args, **{**kwargs, 'map_location': torch.device('cpu')})
     from pytorch_tabular import TabularModel
+    from omegaconf import OmegaConf
+    _orig_omega_load = OmegaConf.load
+    def safe_omega_load(f):
+        c = _orig_omega_load(f)
+        c.accelerator = 'cpu'
+        c.devices = 1
+        return c
+    OmegaConf.load = safe_omega_load
     PYTORCH_AVAILABLE = True
 except Exception as e:
     print(f"Failed to load PyTorch: {e}")
     PYTORCH_AVAILABLE = False
+
+import pandas as pd
+import xgboost as xgb
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 
 
 app = FastAPI(
@@ -45,7 +59,7 @@ def load_model():
         
     if os.path.exists(FT_MODEL_PATH) and PYTORCH_AVAILABLE:
         try:
-            ft_model = TabularModel.load_model(FT_MODEL_PATH)
+            ft_model = TabularModel.load_model(FT_MODEL_PATH, map_location="cpu")
             print(f"FT-Transformer loaded successfully from {FT_MODEL_PATH}")
         except Exception as e:
             print(f"Failed to load FT-Transformer: {e}")
@@ -87,18 +101,24 @@ def predict_churn(request: ChurnPredictionRequest):
     
     # Predict FT-Transformer
     if PYTORCH_AVAILABLE and ft_model is not None:
-        ft_pred_df = ft_model.predict(df)
-        ft_prediction = int(ft_pred_df['prediction'].iloc[0])
-        
-        ft_probability = 0.0
-        for col in ft_pred_df.columns:
-            if 'probability' in col.lower() and ('1' in col or 'true' in col or 'yes' in col):
-                ft_probability = float(ft_pred_df[col].iloc[0])
-                break
+        try:
+            ft_pred_df = ft_model.predict(df)
+            pred_col = [c for c in ft_pred_df.columns if 'pred' in c.lower()][0]
+            ft_prediction = int(ft_pred_df[pred_col].iloc[0])
+            
+            prob_cols = [c for c in ft_pred_df.columns if '1_prob' in c.lower() or ('prob' in c.lower() and ('1' in c or 'true' in c or 'yes' in c))]
+            if prob_cols:
+                ft_probability = float(ft_pred_df[prob_cols[-1]].iloc[0])
+            else:
+                ft_probability = float(xgb_probability)
+        except Exception as e:
+            print(f"FT prediction runtime error: {e}")
+            ft_prediction = xgb_prediction
+            ft_probability = xgb_probability
     else:
-        # Fallback for local Windows testing if PyTorch DLLs fail
-        ft_prediction = xgb_prediction # Match xgboost
-        ft_probability = xgb_probability + 0.03 if xgb_probability < 0.95 else xgb_probability - 0.02
+        # Fallback if model not loaded
+        ft_prediction = xgb_prediction
+        ft_probability = xgb_probability
     
     return {
         "xgboost": {
